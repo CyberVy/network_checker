@@ -8,7 +8,11 @@ import { Clock } from "./Clock"
 
 const ADDRESS_LIST = [
     "https://gcore.xsolutiontech.com/",
+    "https://ipv6.xsolutiontech.com/",
+    "https://ztvi.xsolutiontech.com/",
+    "https://hetzner.xsolutiontech.com/",
     "https://eo.xsolutiontech.com/",
+    "https://wz.xsolutiontech.com/",
     "https://us.xsolutiontech.com/",
     "https://us2.xsolutiontech.com/",
     "https://hk.xsolutiontech.com/",
@@ -47,10 +51,16 @@ function CFChecker(){
     }, [])
     return (
         <div className="text-center">
-            <div>Status</div>
-            <Clock/>
-            <div className="">{current_ipv4_address}/{current_ipv6_address}</div>
-            <div className="grid grid-cols-2 gap-2 p-4">
+
+            <div className="text-[#707070]">
+                <div className="text-2xl">Network Status</div>
+                <Clock/>
+                <div className="text-xl">{current_ipv4_address}</div>
+                <div className="text-xl">{current_ipv6_address}</div>
+            </div>
+           
+
+            <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 p-4">
                 {ADDRESS_LIST.map((value, index) => {
                     const url = new URL(value)
                     const cf_response_object = cf_response_object_record[value]
@@ -63,8 +73,7 @@ function CFChecker(){
                             key={index}
                             className="static! w-auto! h-auto! p-0.5!"
                         >   
-                            <div className="relative w-full h-full">
-
+                            <div className="relative w-full h-full overflow-x-hidden">
                                 <div className="text-sm text-left px-2">
                                     {cf_response_object ? 
                                         <>
