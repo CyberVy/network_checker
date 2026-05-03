@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import "leaflet/dist/leaflet.css"
 import { get_coords } from "@/core/location"
+import "./Map.css"
 
 export type MapProps = {
     className?: string

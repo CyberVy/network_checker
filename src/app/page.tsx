@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react"
 import { LaunchAnimation } from "@/blocks/LaunchAnimation"
 import { CFChecker } from "@/blocks/CFChecker"
-import { Map } from "@/blocks/Map"
+import { Map } from "@/blocks/Map/Map"
 import { FullscreenModalContainer } from "@/components"
 
 export default function Page(){
@@ -31,7 +31,7 @@ export default function Page(){
             </div>
 
             <FullscreenModalContainer className={`pt-0! z-[-1] ${show_launch_animation ? "invisible" : ""}`}>
-                <Map className="w-full h-full opacity-80"/>
+                <Map className="w-full h-full"/>
             </FullscreenModalContainer>
         </>
     )
