@@ -55,10 +55,9 @@ function CFChecker(){
             <div className="text-[#707070]">
                 <div className="text-2xl">Network Status</div>
                 <Clock/>
-                <div className="text-xl">{current_ipv4_address}</div>
-                <div className="text-xl">{current_ipv6_address}</div>
+                <div className="text-xl">{current_ipv4_address || <AnimatedGlowText text="Pending IPV4..."/>}</div>
+                <div className="text-xl">{current_ipv6_address || <AnimatedGlowText text="Pending IPV6..."/>}</div>
             </div>
-           
 
             <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 p-4">
                 {ADDRESS_LIST.map((value, index) => {
