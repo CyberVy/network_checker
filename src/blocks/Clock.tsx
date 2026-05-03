@@ -15,7 +15,7 @@ function Clock(){
         return () => window.clearInterval(i)
     }, [])
     return (
-        <div className="font-bold">
+        <div className="text-xl">
             {clock?.hour || ""}:{clock?.minute || ""}:{clock?.second || ""}
         </div>
     )    
