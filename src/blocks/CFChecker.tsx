@@ -52,7 +52,7 @@ function CFChecker(){
     return (
         <div className="text-center">
 
-            <div className="text-[#707070]">
+            <div className="">
                 <div className="text-2xl">Network Status</div>
                 <Clock/>
                 <div className="text-xl">{current_ipv4_address || <AnimatedGlowText text="Pending IPV4..."/>}</div>
