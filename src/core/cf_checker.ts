@@ -1,3 +1,5 @@
+import { get_coords_by_iata } from "./airports"
+
 export type PingCFParams = {
     address: string
     timeout?: number
@@ -10,6 +12,8 @@ export type CFResponseObject = {
     warp: string
     ip: string
     latency?: number
+    latitude?: number
+    longitude?: number
 }
 
 export async function ping_cf({ address, timeout = 5000 }: PingCFParams): Promise<CFResponseObject | null>{
@@ -28,6 +32,10 @@ export async function ping_cf({ address, timeout = 5000 }: PingCFParams): Promis
     if (response instanceof Response){
         const cf_response_object = transform_cf_response_text_into_object(await response.text())
         cf_response_object.latency = latency
+        const coords = get_coords_by_iata(cf_response_object.colo)
+        if (coords){
+            [cf_response_object.latitude, cf_response_object.longitude] = coords
+        }
         return cf_response_object
     }
     else {
@@ -50,6 +58,3 @@ function transform_cf_response_text_into_object(text: string){
 export async function get_ip(api = "https://4.ident.me/"){
     return fetch(api).then(r => r.text()).catch(() => {})
 }
-
-// ping_cf({ address: "https://cdn.xsolutiontech.com/" }).then(console.log)
-// get_ip().then(console.log)
