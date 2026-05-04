@@ -1,6 +1,6 @@
 "use client"
 
-import { CFResponseObject } from "@/core/cf_checker"
+import type { CFResponseObject } from "@/core/cf_checker"
 import { useEffect, useState } from "react"
 import { ping_cf, get_ip } from "@/core/cf_checker"
 import { AnimatedGlowText, FloatingModalContainer, useAutoSyncRefAndState } from "@/components"
@@ -19,7 +19,15 @@ const ADDRESS_LIST = [
     "https://eu.xsolutiontech.com/"
 ]
 
-function CFChecker(){
+type CFCheckerProps = {
+    on_cf_response_object_record_change?: (cf_response_object_record: Record<string, CFResponseObject | undefined>) => void
+}
+
+function should_notify_map(prev_cf_response_object: CFResponseObject | undefined, next_cf_response_object: CFResponseObject){
+    return prev_cf_response_object?.latitude !== next_cf_response_object.latitude || prev_cf_response_object?.longitude !== next_cf_response_object.longitude
+}
+
+function CFChecker({ on_cf_response_object_record_change }: CFCheckerProps){
     const [cf_response_object_record_ref, set_cf_response_object_record, cf_response_object_record] = useAutoSyncRefAndState<Record<string, CFResponseObject | undefined>>({})
     const [current_ipv4_address, set_current_ipv4_address] = useState("")
     const [current_ipv6_address, set_current_ipv6_address] = useState("")
@@ -41,9 +49,13 @@ function CFChecker(){
             for (const address of ADDRESS_LIST){
                 ping_cf({ address, timeout: 5000 }).then(r => {
                     if (!r) return
+                    const prev_cf_response_object = cf_response_object_record_ref.current[address]
                     const cf_response_object_record = { ...cf_response_object_record_ref.current }
                     cf_response_object_record[address] = r
                     set_cf_response_object_record(cf_response_object_record)
+                    if (should_notify_map(prev_cf_response_object, r)){
+                        on_cf_response_object_record_change?.(cf_response_object_record)
+                    }
                 })
             }
         }, 1000)
@@ -70,7 +82,7 @@ function CFChecker(){
                     return (
                         <FloatingModalContainer
                             key={index}
-                            className="static! w-auto! h-auto! p-0.5!"
+                            className="static! w-auto! h-auto! p-0.5! backdrop-blur-none!"
                         >   
                             <div className="relative w-full h-full overflow-x-hidden">
                                 <div className="text-sm text-left px-2">
