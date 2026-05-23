@@ -1,5 +1,7 @@
 {
   "name": "netchecker",
+  "title": "Netchecker",
+  "description": "Check Your Net",
   "version": "0.1.0",
   "private": true,
   "scripts": {
