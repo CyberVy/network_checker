@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react"
 import { ClockResult, get_time } from "@/core/time"
 
-function Clock(){
+import { join_classes } from "@/components/utils"
+
+export type ClockProps = {
+    className?: string
+}
+
+function Clock({ className }: ClockProps){
 
     const [clock, set_clock] = useState<ClockResult | null>(null)
 
@@ -15,7 +21,7 @@ function Clock(){
         return () => window.clearInterval(i)
     }, [])
     return (
-        <div className="text-xl">
+        <div className={join_classes("text-xl", className)}>
             {clock?.hour || ""}:{clock?.minute || ""}:{clock?.second || ""}
         </div>
     )    

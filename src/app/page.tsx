@@ -28,9 +28,10 @@ export default function Page(){
             {show_launch_animation &&
                 <LaunchAnimation/>}
 
-            <div hidden={show_launch_animation}>
-                <CFChecker on_cf_response_object_record_change={set_cf_response_object_record}/>     
-            </div>
+            <CFChecker
+                hidden={show_launch_animation}
+                on_cf_response_object_record_change={set_cf_response_object_record}
+            />
 
             <FullscreenModalContainer className={`pt-0! z-[-1] ${show_launch_animation ? "invisible" : ""}`}>
                 <Map className="w-full h-full" cf_response_object_record={cf_response_object_record}/>

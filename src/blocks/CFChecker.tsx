@@ -19,15 +19,19 @@ const ADDRESS_LIST = [
     "https://eu.xsolutiontech.com/"
 ]
 
+import { join_classes } from "@/components/utils"
+
 type CFCheckerProps = {
     on_cf_response_object_record_change?: (cf_response_object_record: Record<string, CFResponseObject | undefined>) => void
+    className?: string
+    hidden?: boolean
 }
 
 function should_notify_map(prev_cf_response_object: CFResponseObject | undefined, next_cf_response_object: CFResponseObject){
     return prev_cf_response_object?.latitude !== next_cf_response_object.latitude || prev_cf_response_object?.longitude !== next_cf_response_object.longitude
 }
 
-function CFChecker({ on_cf_response_object_record_change }: CFCheckerProps){
+function CFChecker({ on_cf_response_object_record_change, className, hidden }: CFCheckerProps){
     const [cf_response_object_record_ref, set_cf_response_object_record, cf_response_object_record] = useAutoSyncRefAndState<Record<string, CFResponseObject | undefined>>({})
     const [current_ipv4_address, set_current_ipv4_address] = useState("")
     const [current_ipv6_address, set_current_ipv6_address] = useState("")
@@ -62,7 +66,7 @@ function CFChecker({ on_cf_response_object_record_change }: CFCheckerProps){
         return () => window.clearInterval(i)
     }, [])
     return (
-        <div className="text-center">
+        <div className={join_classes("text-center", className)} hidden={hidden}>
 
             <div className="">
                 <div className="text-2xl">Network Status</div>
