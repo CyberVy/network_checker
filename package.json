@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "tauri": "cargo tauri",
-    "dev": "npm run dev:sw & next dev -p 4000",
+    "dev": "concurrently \"npm run dev:sw\" \"next dev -p 4000\"",
     "build": "npm run build:sw & next build",
     "start": "npx serve out -p 4000",
     "lint": "eslint src cli",
@@ -28,6 +28,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^10.0.3",
     "esbuild": "^0.27.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.0",
