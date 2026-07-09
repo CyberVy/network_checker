@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "tauri": "cargo tauri",
-    "dev": "concurrently \"npm run dev:sw\" \"next dev -p 4000\"",
+    "dev:debug_bridge": "npx tsx cli/debug/generate_debug_bridge.ts",
+    "dev": "npm run dev:debug_bridge && concurrently \"npm run dev:sw\" \"next dev -p 4000\" \"npx tsx cli/debug/launch.ts\"",
     "build": "npm run build:sw & next build",
     "start": "npx serve out -p 4000",
     "lint": "eslint src cli",
