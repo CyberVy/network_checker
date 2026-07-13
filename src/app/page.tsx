@@ -10,8 +10,6 @@ export default function Page(){
     const [show_launch_animation, set_show_launch_animation] = useState(true)
     const [cf_response_object_record, set_cf_response_object_record] = useState<Record<string, CFResponseObject | undefined>>({})
 
-
-
     // register service worker
     useEffect(() => {
         if ('serviceWorker' in navigator){
