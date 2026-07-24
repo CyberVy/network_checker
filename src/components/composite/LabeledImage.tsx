@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { generate_cover_image } from "@/infra/data_generation_lib"
 import type { CoverImageOptions } from "@/infra/data_generation_lib"
 
-import { is_ios_device } from "@/infra/device.client"
+import { is_ios_device, prevent_ios_magnifier_on_target } from "@/infra"
 import { ContextMenu } from "@/components/composite/ContextMenuContainer"
 import type { ContextMenuProps } from "@/components/composite/ContextMenuContainer"
 import type { ComponentPropsWithRef, ComponentPropsWithoutRef, ReactNode } from "react"
@@ -109,13 +109,11 @@ function LabeledImage({
             >
                 <div
                     className="w-full h-full relative"
-                    onTouchEnd={event => {
-                        // Avoid the blue magnified outline shown by mobile WebKit after touch interactions.
-                        event.preventDefault()
-                    }}
+                    onTouchEnd={prevent_ios_magnifier_on_target}
                 >
                     <img
                         {...image_props}
+                        onTouchEnd={prevent_ios_magnifier_on_target}
                         alt={alt || ""}
                         src={resolved_src}
                         className={`${image_class_name || ""} w-full h-full object-cover [-webkit-touch-callout:none] ${is_ios ? "[-webkit-user-drag:none]" : ""}`}
@@ -133,43 +131,28 @@ function LabeledImage({
                         onClick={() => {
                             on_click_image?.()
                         }}
-                        onTouchEnd={event => {
-                            event.stopPropagation()
-                        }}
                     />
 
                     {label_left != null && <div
                         className={`absolute top-1 left-1 px-2 text-white text-xs font-bold rounded-md ${label_left_background_color || ""} ${is_loaded ? "block" : "hidden"}`}
-                        onTouchEnd={event => {
-                            event.stopPropagation()
-                        }}
                     >
                         {label_left}
                     </div>}
 
                     {label_right != null && <div
                         className={`absolute top-1 right-2 px-2 text-white text-xs font-bold rounded-md ${label_right_background_color || ""} ${is_loaded ? "block" : "hidden"}`}
-                        onTouchEnd={event => {
-                            event.stopPropagation()
-                        }}
                     >
                         {label_right}
                     </div>}
 
                     {top_information != null && <div
                         className={`absolute ${label_left ? "top-6" : "top-1"} left-1 px-1 text-pink-50 text-xs rounded-md ${top_information_background_color || ""} ${is_loaded ? "block" : "hidden"} overflow-hidden max-h-12 max-w-1/2`}
-                        onTouchEnd={event => {
-                            event.stopPropagation()
-                        }}
                     >
                         {top_information}
                     </div>}
 
                     {bottom_information != null && <div
                         className={`absolute bottom-1 left-1 px-1 text-pink-50 text-xs rounded-md ${bottom_information_background_color || ""} ${is_loaded ? "block" : "hidden"} overflow-hidden  max-h-4 max-w-4/5`}
-                        onTouchEnd={event => {
-                            event.stopPropagation()
-                        }}
                     >
                         {bottom_information}
                     </div>}
