@@ -11,17 +11,22 @@ export default function App(){
 
     return (
         <>
-            {show_launch_animation &&
-                <LaunchAnimation on_finish={() => set_show_launch_animation(false)} />}
+            <div
+                className="select-none"
+                {...(show_launch_animation ? { inert: true } : {})}
+            >
+                <CFChecker
+                    on_cf_response_object_record_change={set_cf_response_object_record}
+                />
 
-            <CFChecker
-                hidden={show_launch_animation}
-                on_cf_response_object_record_change={set_cf_response_object_record}
-            />
+                <FullscreenModalContainer className="pt-0! z-[-1]">
+                    <Map className="w-full h-full" cf_response_object_record={cf_response_object_record}/>
+                </FullscreenModalContainer>
+            </div>
 
-            <FullscreenModalContainer className={`pt-0! z-[-1] ${show_launch_animation ? "invisible" : ""}`}>
-                <Map className="w-full h-full" cf_response_object_record={cf_response_object_record}/>
-            </FullscreenModalContainer>
+            {show_launch_animation && (
+                <LaunchAnimation on_finish={() => set_show_launch_animation(false)} />
+            )}
         </>
     )
 }
