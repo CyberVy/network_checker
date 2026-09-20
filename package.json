@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "tauri": "cargo tauri",
+    "debug:lazy-container": "tsx cli/debug/tests/lazy_container_dimensions.ts",
     "dev": "vite",
     "build": "vite build",
     "start": "vite preview --port 4000 --outDir dist",
