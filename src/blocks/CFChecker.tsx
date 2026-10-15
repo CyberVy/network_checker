@@ -3,7 +3,7 @@
 import type { CFResponseObject } from "@/core/cf_checker"
 import { useEffect, useState } from "react"
 import { ping_cf, get_ip } from "@/core/cf_checker"
-import { AnimatedGlowText, FloatingModalContainer, useAutoSyncRefAndState } from "@/components"
+import { AnimatedGlowText, useAutoSyncRefAndState } from "@/components"
 import { Clock } from "./Clock"
 
 const ADDRESS_LIST = [
@@ -84,9 +84,9 @@ function CFChecker({ on_cf_response_object_record_change, className, hidden }: C
                         ping_state_color = cf_response_object.latency <= 200 ? "dark:text-green-300 text-green-500" : cf_response_object.latency <= 300 ? "dark:text-yellow-300 text-yellow-500" : "dark:text-red-300 text-red-500"
                     }
                     return (
-                        <FloatingModalContainer
+                        <div
                             key={index}
-                            className="static! w-auto! h-auto! p-0.5! backdrop-blur-none!"
+                            className="relative flex flex-col justify-center rounded-3xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#141414]/80 backdrop-blur-xl p-2 text-foreground shadow-sm select-none"
                         >   
                             <div className="relative w-full h-full overflow-x-hidden">
                                 <div className="text-sm text-left px-2">
@@ -110,8 +110,7 @@ function CFChecker({ on_cf_response_object_record_change, className, hidden }: C
                                     />
                                 </div>
                             </div>
-                           
-                        </FloatingModalContainer>
+                        </div>
                     )
                 })}
             </div>
