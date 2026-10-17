@@ -5,28 +5,23 @@ import { CFChecker } from "@/blocks/CFChecker"
 import { Map } from "@/blocks/Map/Map"
 import { FullscreenModalContainer } from "@/components"
 
-export default function App(){
+export default function App() {
     const [show_launch_animation, set_show_launch_animation] = useState(true)
-    const [cf_response_object_record, set_cf_response_object_record] = useState<Record<string, CFResponseObject | undefined>>({})
+    const [cf_response_object_record, set_cf_response_object_record] = useState<
+        Record<string, CFResponseObject | undefined>
+    >({})
 
     return (
         <>
-            <div
-                className="select-none"
-                {...(show_launch_animation ? { inert: true } : {})}
-            >
-                <CFChecker
-                    on_cf_response_object_record_change={set_cf_response_object_record}
-                />
+            <div className="select-none" {...(show_launch_animation ? { inert: true } : {})}>
+                <CFChecker on_cf_response_object_record_change={set_cf_response_object_record} />
 
                 <FullscreenModalContainer className="pt-0! z-[-1]">
-                    <Map className="w-full h-full" cf_response_object_record={cf_response_object_record}/>
+                    <Map className="w-full h-full" cf_response_object_record={cf_response_object_record} />
                 </FullscreenModalContainer>
             </div>
 
-            {show_launch_animation && (
-                <LaunchAnimation on_finish={() => set_show_launch_animation(false)} />
-            )}
+            {show_launch_animation && <LaunchAnimation on_finish={() => set_show_launch_animation(false)} />}
         </>
     )
 }

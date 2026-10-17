@@ -16,7 +16,7 @@ export type CFResponseObject = {
     longitude?: number
 }
 
-export async function ping_cf({ address, timeout = 5000 }: PingCFParams): Promise<CFResponseObject | null>{
+export async function ping_cf({ address, timeout = 5000 }: PingCFParams): Promise<CFResponseObject | null> {
     const url = new URL(address)
     url.pathname = "/cdn-cgi/trace"
 
@@ -29,32 +29,33 @@ export async function ping_cf({ address, timeout = 5000 }: PingCFParams): Promis
     const response = await Promise.race([fetch(url), timeout_promise])
     const latency = Date.now() - t_s
 
-    if (response instanceof Response){
+    if (response instanceof Response) {
         const cf_response_object = transform_cf_response_text_into_object(await response.text())
         cf_response_object.latency = latency
         const coords = get_coords_by_iata(cf_response_object.colo)
-        if (coords){
-            [cf_response_object.latitude, cf_response_object.longitude] = coords
+        if (coords) {
+            ;[cf_response_object.latitude, cf_response_object.longitude] = coords
         }
         return cf_response_object
-    }
-    else {
+    } else {
         return null
     }
 }
 
-function transform_cf_response_text_into_object(text: string){
+function transform_cf_response_text_into_object(text: string) {
     const text_list = text.split("\n")
     const obj = {} as CFResponseObject
-    for (const item of text_list){
+    for (const item of text_list) {
         const [key, value] = item.split("=")
-        if (key === "ip" || key === "colo" || key === "uag" || key === "loc" || key === "warp"){
+        if (key === "ip" || key === "colo" || key === "uag" || key === "loc" || key === "warp") {
             obj[key] = value
         }
     }
     return obj
 }
 
-export async function get_ip(api = "https://4.ident.me/"){
-    return fetch(api).then(r => r.text()).catch(() => {})
+export async function get_ip(api = "https://4.ident.me/") {
+    return fetch(api)
+        .then((r) => r.text())
+        .catch(() => {})
 }
