@@ -22,42 +22,51 @@ const ADDRESS_LIST = [
 import { join_classes } from "@/components/utils"
 
 type CFCheckerProps = {
-    on_cf_response_object_record_change?: (cf_response_object_record: Record<string, CFResponseObject | undefined>) => void
+    on_cf_response_object_record_change?: (
+        cf_response_object_record: Record<string, CFResponseObject | undefined>
+    ) => void
     className?: string
     hidden?: boolean
 }
 
-function should_notify_map(prev_cf_response_object: CFResponseObject | undefined, next_cf_response_object: CFResponseObject){
-    return prev_cf_response_object?.latitude !== next_cf_response_object.latitude || prev_cf_response_object?.longitude !== next_cf_response_object.longitude
+function should_notify_map(
+    prev_cf_response_object: CFResponseObject | undefined,
+    next_cf_response_object: CFResponseObject
+) {
+    return (
+        prev_cf_response_object?.latitude !== next_cf_response_object.latitude ||
+        prev_cf_response_object?.longitude !== next_cf_response_object.longitude
+    )
 }
 
-function CFChecker({ on_cf_response_object_record_change, className, hidden }: CFCheckerProps){
-    const [cf_response_object_record_ref, set_cf_response_object_record, cf_response_object_record] = useAutoSyncRefAndState<Record<string, CFResponseObject | undefined>>({})
+function CFChecker({ on_cf_response_object_record_change, className, hidden }: CFCheckerProps) {
+    const [cf_response_object_record_ref, set_cf_response_object_record, cf_response_object_record] =
+        useAutoSyncRefAndState<Record<string, CFResponseObject | undefined>>({})
     const [current_ipv4_address, set_current_ipv4_address] = useState("")
     const [current_ipv6_address, set_current_ipv6_address] = useState("")
 
     useEffect(() => {
-        get_ip().then(ip => {
+        get_ip().then((ip) => {
             if (!ip) return
-            
+
             set_current_ipv4_address(ip)
         })
-        get_ip("https://6.ident.me").then(ip => {
+        get_ip("https://6.ident.me").then((ip) => {
             if (!ip) return
-            
+
             set_current_ipv6_address(ip)
         })
     }, [])
     useEffect(() => {
         const i = window.setInterval(() => {
-            for (const address of ADDRESS_LIST){
-                ping_cf({ address, timeout: 5000 }).then(r => {
+            for (const address of ADDRESS_LIST) {
+                ping_cf({ address, timeout: 5000 }).then((r) => {
                     if (!r) return
                     const prev_cf_response_object = cf_response_object_record_ref.current[address]
                     const cf_response_object_record = { ...cf_response_object_record_ref.current }
                     cf_response_object_record[address] = r
                     set_cf_response_object_record(cf_response_object_record)
-                    if (should_notify_map(prev_cf_response_object, r)){
+                    if (should_notify_map(prev_cf_response_object, r)) {
                         on_cf_response_object_record_change?.(cf_response_object_record)
                     }
                 })
@@ -67,12 +76,11 @@ function CFChecker({ on_cf_response_object_record_change, className, hidden }: C
     }, [])
     return (
         <div className={join_classes("text-center", className)} hidden={hidden}>
-
             <div className="">
                 <div className="text-2xl">Network Status</div>
-                <Clock/>
-                <div className="text-xl">{current_ipv4_address || <AnimatedGlowText text="Pending IPV4..."/>}</div>
-                <div className="text-xl">{current_ipv6_address || <AnimatedGlowText text="Pending IPV6..."/>}</div>
+                <Clock />
+                <div className="text-xl">{current_ipv4_address || <AnimatedGlowText text="Pending IPV4..." />}</div>
+                <div className="text-xl">{current_ipv6_address || <AnimatedGlowText text="Pending IPV6..." />}</div>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 p-4">
@@ -80,41 +88,43 @@ function CFChecker({ on_cf_response_object_record_change, className, hidden }: C
                     const url = new URL(value)
                     const cf_response_object = cf_response_object_record[value]
                     let ping_state_color = ""
-                    if (cf_response_object?.latency){
-                        ping_state_color = cf_response_object.latency <= 200 ? "dark:text-green-300 text-green-500" : cf_response_object.latency <= 300 ? "dark:text-yellow-300 text-yellow-500" : "dark:text-red-300 text-red-500"
+                    if (cf_response_object?.latency) {
+                        ping_state_color =
+                            cf_response_object.latency <= 200
+                                ? "dark:text-green-300 text-green-500"
+                                : cf_response_object.latency <= 300
+                                  ? "dark:text-yellow-300 text-yellow-500"
+                                  : "dark:text-red-300 text-red-500"
                     }
                     return (
                         <div
                             key={index}
                             className="relative flex flex-col justify-center rounded-3xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#141414]/80 backdrop-blur-xl p-2 text-foreground shadow-sm select-none"
-                        >   
+                        >
                             <div className="relative w-full h-full overflow-x-hidden">
                                 <div className="text-sm text-left px-2">
-                                    {cf_response_object ? 
+                                    {cf_response_object ? (
                                         <>
                                             <span>
                                                 {cf_response_object.colo || ""}: {cf_response_object.latency}
                                             </span>
-                                            <span className="text-sm">                 
-                                                ms
-                                            </span>
-                                        </> : <span className={`dark:text-red-500 text-red-700`}>Disconnected</span>}
-                                   
+                                            <span className="text-sm">ms</span>
+                                        </>
+                                    ) : (
+                                        <span className={`dark:text-red-500 text-red-700`}>Disconnected</span>
+                                    )}
                                 </div>
-                                <div className="text-xs text-left px-2">
-                                    {url.host.toUpperCase()}
-                                </div>
-                                <div className={`absolute right-2 -top-4 ${ping_state_color} font-bold select-none text-2xl`}>
-                                    <AnimatedGlowText
-                                        text="..."
-                                    />
+                                <div className="text-xs text-left px-2">{url.host.toUpperCase()}</div>
+                                <div
+                                    className={`absolute right-2 -top-4 ${ping_state_color} font-bold select-none text-2xl`}
+                                >
+                                    <AnimatedGlowText text="..." />
                                 </div>
                             </div>
                         </div>
                     )
                 })}
             </div>
-            
         </div>
     )
 }

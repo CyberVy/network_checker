@@ -21,24 +21,24 @@ const MAP_LAYERS = {
 const INITIAL_CENTER: [number, number] = [30, 120]
 const INITIAL_ZOOM = 4
 
-function Map({ className, cf_response_object_record }: MapProps){
+function Map({ className, cf_response_object_record }: MapProps) {
     const map_ref = useRef<HTMLDivElement | null>(null)
     const map_instance_ref = useRef<LeafletMap | null>(null)
     const marker_layer_ref = useRef<LayerGroup | null>(null)
     const leaflet_ref = useRef<typeof import("leaflet") | null>(null)
     const [map_is_ready, set_map_is_ready] = useState(false)
-    
+
     useEffect(() => {
         let map: LeafletMap | null = null
         let query: MediaQueryList | null = null
         let callback: ((event: MediaQueryListEvent) => void) | null = null
         let is_disposed = false
 
-        import("leaflet").then(async L => {
+        import("leaflet").then(async (L) => {
             if (is_disposed || !map_ref.current) return
 
             leaflet_ref.current = L
-            query = window.matchMedia('(prefers-color-scheme: dark)')
+            query = window.matchMedia("(prefers-color-scheme: dark)")
             const is_in_dark = query.matches
 
             map = L.map(map_ref.current, { attributionControl: false })
@@ -52,18 +52,17 @@ function Map({ className, cf_response_object_record }: MapProps){
 
             callback = (event: MediaQueryListEvent) => {
                 if (!map) return
-                if (event.matches){
+                if (event.matches) {
                     layer.remove()
                     layer = L.tileLayer(MAP_LAYERS["dark"])
                     layer.addTo(map)
-                }
-                else {
+                } else {
                     layer.remove()
                     layer = L.tileLayer(MAP_LAYERS["light"])
                     layer.addTo(map)
                 }
             }
-            query.addEventListener('change', callback)
+            query.addEventListener("change", callback)
             set_map_is_ready(true)
 
             const [latitude, longitude] = await get_coords()
@@ -82,7 +81,7 @@ function Map({ className, cf_response_object_record }: MapProps){
 
         return () => {
             is_disposed = true
-            if (query && callback){
+            if (query && callback) {
                 query.removeEventListener("change", callback)
             }
             map?.remove()
@@ -99,16 +98,15 @@ function Map({ className, cf_response_object_record }: MapProps){
         if (!map_is_ready || !L || !map || !marker_layer) return
 
         marker_layer.clearLayers()
-        for (const [address, cf_response_object] of Object.entries(cf_response_object_record || {})){
+        for (const [address, cf_response_object] of Object.entries(cf_response_object_record || {})) {
             if (cf_response_object?.latitude == undefined || cf_response_object.longitude == undefined) continue
 
             const latitude = cf_response_object.latitude
             const longitude = cf_response_object.longitude
             const url = new URL(address)
-            const label = [
-                url.host.toUpperCase(),
-                cf_response_object.colo ? `(${cf_response_object.colo})` : ""
-            ].filter(Boolean).join(" ")
+            const label = [url.host.toUpperCase(), cf_response_object.colo ? `(${cf_response_object.colo})` : ""]
+                .filter(Boolean)
+                .join(" ")
 
             L.circleMarker([latitude, longitude], {
                 radius: 6,
@@ -116,17 +114,12 @@ function Map({ className, cf_response_object_record }: MapProps){
                 color: "#2563eb",
                 fillColor: "#60a5fa",
                 fillOpacity: 0.85
-            }).bindTooltip(label).addTo(marker_layer)
+            })
+                .bindTooltip(label)
+                .addTo(marker_layer)
         }
     }, [cf_response_object_record, map_is_ready])
-    return (
-        <div 
-            className={`select-none ${className}`}
-            ref={map_ref}
-        >
-            
-        </div>
-    )
+    return <div className={`select-none ${className}`} ref={map_ref}></div>
 }
 
 export { Map }
