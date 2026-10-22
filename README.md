@@ -4,7 +4,7 @@
 
 ### Prerequisites
 #### Web
-- [Node.js](https://nodejs.org/) (v20 or later)
+- [Node.js](https://nodejs.org/)
 #### Native (Optional)
 - [Rust](https://www.rust-lang.org/)
 ```bash
