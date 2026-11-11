@@ -1,7 +1,7 @@
 "use client"
 
 import type { CFResponseObject } from "@/core/cf_checker"
-import { useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { ping_cf, get_ip } from "@/core/cf_checker"
 import { AnimatedGlowText, useAutoSyncRefAndState } from "@/components"
 import { Clock } from "./Clock"
@@ -45,37 +45,41 @@ function CFChecker({ on_cf_response_object_record_change, className, hidden }: C
     const [current_ipv4_address, set_current_ipv4_address] = useState("")
     const [current_ipv6_address, set_current_ipv6_address] = useState("")
 
-    useEffect(() => {
-        get_ip().then((ip) => {
-            if (!ip) return
+    const attach_container = useCallback(
+        (node: HTMLDivElement | null) => {
+            if (!node) return
 
-            set_current_ipv4_address(ip)
-        })
-        get_ip("https://6.ident.me").then((ip) => {
-            if (!ip) return
+            get_ip().then((ip) => {
+                if (!ip) return
+                set_current_ipv4_address(ip)
+            })
+            get_ip("https://6.ident.me").then((ip) => {
+                if (!ip) return
+                set_current_ipv6_address(ip)
+            })
 
-            set_current_ipv6_address(ip)
-        })
-    }, [])
-    useEffect(() => {
-        const i = window.setInterval(() => {
-            for (const address of ADDRESS_LIST) {
-                ping_cf({ address, timeout: 5000 }).then((r) => {
-                    if (!r) return
-                    const prev_cf_response_object = cf_response_object_record_ref.current[address]
-                    const cf_response_object_record = { ...cf_response_object_record_ref.current }
-                    cf_response_object_record[address] = r
-                    set_cf_response_object_record(cf_response_object_record)
-                    if (should_notify_map(prev_cf_response_object, r)) {
-                        on_cf_response_object_record_change?.(cf_response_object_record)
-                    }
-                })
-            }
-        }, 1000)
-        return () => window.clearInterval(i)
-    }, [])
+            const i = window.setInterval(() => {
+                for (const address of ADDRESS_LIST) {
+                    ping_cf({ address, timeout: 5000 }).then((r) => {
+                        if (!r) return
+                        const prev_cf_response_object = cf_response_object_record_ref.current[address]
+                        const cf_response_object_record = { ...cf_response_object_record_ref.current }
+                        cf_response_object_record[address] = r
+                        set_cf_response_object_record(cf_response_object_record)
+                        if (should_notify_map(prev_cf_response_object, r)) {
+                            on_cf_response_object_record_change?.(cf_response_object_record)
+                        }
+                    })
+                }
+            }, 1000)
+
+            return () => window.clearInterval(i)
+        },
+        [cf_response_object_record_ref, on_cf_response_object_record_change, set_cf_response_object_record]
+    )
+
     return (
-        <div className={join_classes("text-center", className)} hidden={hidden}>
+        <div ref={attach_container} className={join_classes("text-center", className)} hidden={hidden}>
             <div className="">
                 <div className="text-2xl">Network Status</div>
                 <Clock />
