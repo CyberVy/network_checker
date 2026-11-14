@@ -48,20 +48,21 @@ function CFChecker({ on_cf_response_object_record_change, className, hidden }: C
     const attach_container = useCallback(
         (node: HTMLDivElement | null) => {
             if (!node) return
+            let is_disposed = false
 
             get_ip().then((ip) => {
-                if (!ip) return
+                if (is_disposed || !ip) return
                 set_current_ipv4_address(ip)
             })
             get_ip("https://6.ident.me").then((ip) => {
-                if (!ip) return
+                if (is_disposed || !ip) return
                 set_current_ipv6_address(ip)
             })
 
             const i = window.setInterval(() => {
                 for (const address of ADDRESS_LIST) {
                     ping_cf({ address, timeout: 5000 }).then((r) => {
-                        if (!r) return
+                        if (is_disposed || !r) return
                         const prev_cf_response_object = cf_response_object_record_ref.current[address]
                         const cf_response_object_record = { ...cf_response_object_record_ref.current }
                         cf_response_object_record[address] = r
@@ -73,7 +74,10 @@ function CFChecker({ on_cf_response_object_record_change, className, hidden }: C
                 }
             }, 1000)
 
-            return () => window.clearInterval(i)
+            return () => {
+                is_disposed = true
+                window.clearInterval(i)
+            }
         },
         [cf_response_object_record_ref, on_cf_response_object_record_change, set_cf_response_object_record]
     )

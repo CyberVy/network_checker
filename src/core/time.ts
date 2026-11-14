@@ -4,8 +4,8 @@ export type ClockResult = {
     second: string
 }
 
-export function get_time(): ClockResult {
-    const current_time = new Date()
+export function get_time(timestamp: number = Date.now()): ClockResult {
+    const current_time = new Date(timestamp)
     const hour = current_time.getHours().toString().padStart(2, "0")
     const minute = current_time.getMinutes().toString().padStart(2, "0")
     const second = current_time.getSeconds().toString().padStart(2, "0")
