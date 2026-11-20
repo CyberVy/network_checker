@@ -25,6 +25,7 @@
     "dependencies": {
         "leaflet": "^1.9.4",
         "localforage": "^1.10.0",
+        "lucide-react": "^1.77.0",
         "react": "19.2.1",
         "react-dom": "19.2.1"
     },
