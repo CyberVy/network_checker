@@ -3,7 +3,8 @@
 import type { CFResponseObject } from "@/core/cf_checker"
 import { useCallback, useState } from "react"
 import { ping_cf, get_ip } from "@/core/cf_checker"
-import { AnimatedGlowText, useAutoSyncRefAndState } from "@/components"
+import { AnimatedGlowText } from "@/components"
+import { useAutoSyncRefAndState } from "@/components/hooks"
 import { Clock } from "./Clock"
 
 const ADDRESS_LIST = [
