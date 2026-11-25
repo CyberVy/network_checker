@@ -3,7 +3,7 @@
 import type { CFResponseObject } from "@/core/cf_checker"
 import { useCallback, useState } from "react"
 import { ping_cf, get_ip } from "@/core/cf_checker"
-import { AnimatedGlowText } from "@/components"
+import { AnimatedGlowText, Text } from "@/components"
 import { useAutoSyncRefAndState } from "@/components/hooks"
 import { Clock } from "./Clock"
 
@@ -86,10 +86,16 @@ function CFChecker({ on_cf_response_object_record_change, className, hidden }: C
     return (
         <div ref={attach_container} className={join_classes("text-center", className)} hidden={hidden}>
             <div className="">
-                <div className="text-2xl">Network Status</div>
+                <Text as="div" variant="title" weight="normal" className="text-2xl">
+                    Network Status
+                </Text>
                 <Clock />
-                <div className="text-xl">{current_ipv4_address || <AnimatedGlowText text="Pending IPV4..." />}</div>
-                <div className="text-xl">{current_ipv6_address || <AnimatedGlowText text="Pending IPV6..." />}</div>
+                <Text as="div" variant="title" weight="normal" className="text-xl">
+                    {current_ipv4_address || <AnimatedGlowText text="Pending IPV4..." />}
+                </Text>
+                <Text as="div" variant="title" weight="normal" className="text-xl">
+                    {current_ipv6_address || <AnimatedGlowText text="Pending IPV6..." />}
+                </Text>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 p-4">
@@ -111,19 +117,21 @@ function CFChecker({ on_cf_response_object_record_change, className, hidden }: C
                             className="relative flex flex-col justify-center rounded-3xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#141414]/80 backdrop-blur-xl p-2 text-foreground shadow-sm select-none"
                         >
                             <div className="relative w-full h-full overflow-x-hidden">
-                                <div className="text-sm text-left px-2">
+                                <Text as="div" variant="body" align="left" className="px-2">
                                     {cf_response_object ? (
                                         <>
                                             <span>
                                                 {cf_response_object.colo || ""}: {cf_response_object.latency}
                                             </span>
-                                            <span className="text-sm">ms</span>
+                                            <span>ms</span>
                                         </>
                                     ) : (
-                                        <span className={`dark:text-red-500 text-red-700`}>Disconnected</span>
+                                        <Text tone="destructive">Disconnected</Text>
                                     )}
-                                </div>
-                                <div className="text-xs text-left px-2">{url.host.toUpperCase()}</div>
+                                </Text>
+                                <Text as="div" variant="caption" align="left" className="px-2">
+                                    {url.host.toUpperCase()}
+                                </Text>
                                 <div
                                     className={`absolute right-2 -top-4 ${ping_state_color} font-bold select-none text-2xl`}
                                 >

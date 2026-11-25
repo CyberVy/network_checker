@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react"
 import { ClockResult, get_time } from "@/core/time"
+import { Text } from "@/components"
 import { join_classes } from "@/components/utils"
 
 export type ClockProps = {
@@ -41,9 +42,9 @@ function Clock({ className }: ClockProps) {
     const clock = get_time(timestamp)
 
     return (
-        <div className={join_classes("text-xl", className)}>
+        <Text as="div" variant="title" weight="normal" mono className={join_classes("text-xl", className)}>
             {clock?.hour || ""}:{clock?.minute || ""}:{clock?.second || ""}
-        </div>
+        </Text>
     )
 }
 
