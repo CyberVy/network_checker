@@ -1,7 +1,7 @@
 "use client"
 
 import { useSyncExternalStore } from "react"
-import { ClockResult, get_time } from "@/core/time"
+import { ClockResult, get_time } from "@core/time"
 import { Text } from "@/components"
 import { join_classes } from "@/components/utils"
 

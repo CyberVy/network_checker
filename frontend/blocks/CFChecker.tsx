@@ -1,8 +1,8 @@
 "use client"
 
-import type { CFResponseObject } from "@/core/cf_checker"
+import type { CFResponseObject } from "@core/cf_checker"
 import { useCallback, useState } from "react"
-import { ping_cf, get_ip } from "@/core/cf_checker"
+import { ping_cf, get_ip } from "@core/cf_checker"
 import { AnimatedGlowText, Text } from "@/components"
 import { useAutoSyncRefAndState } from "@/components/hooks"
 import { Clock } from "./Clock"

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import type { CFResponseObject } from "@/core/cf_checker"
+import type { CFResponseObject } from "@core/cf_checker"
 import { LaunchAnimation } from "@/blocks/LaunchAnimation"
 import { CFChecker } from "@/blocks/CFChecker"
 import { Map } from "@/blocks/Map/Map"

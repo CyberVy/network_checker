@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useRef } from "react"
-import type { CFResponseObject } from "@/core/cf_checker"
+import type { CFResponseObject } from "@core/cf_checker"
 import type { LayerGroup, Map as LeafletMap } from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { get_coords } from "@/core/location"
