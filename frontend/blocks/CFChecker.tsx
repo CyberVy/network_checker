@@ -114,7 +114,7 @@ function CFChecker({ on_cf_response_object_record_change, className, hidden }: C
                     return (
                         <div
                             key={index}
-                            className="relative flex flex-col justify-center rounded-3xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#141414]/80 backdrop-blur-xl p-2 text-foreground shadow-sm select-none"
+                            className="relative flex flex-col justify-center rounded-3xl border border-ui-border bg-ui-surface backdrop-blur-xl p-2 text-foreground shadow-sm select-none"
                         >
                             <div className="relative w-full h-full overflow-x-hidden">
                                 <Text as="div" variant="body" align="left" className="px-2">
