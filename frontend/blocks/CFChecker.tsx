@@ -84,64 +84,104 @@ function CFChecker({ on_cf_response_object_record_change, className, hidden }: C
     )
 
     return (
-        <div ref={attach_container} className={join_classes("text-center", className)} hidden={hidden}>
-            <div className="">
-                <Text as="div" variant="title" weight="normal" className="text-2xl">
-                    Network Status
-                </Text>
-                <Clock />
-                <Text as="div" variant="title" weight="normal" className="text-xl">
-                    {current_ipv4_address || <AnimatedGlowText text="Pending IPV4..." />}
-                </Text>
-                <Text as="div" variant="title" weight="normal" className="text-xl">
-                    {current_ipv6_address || <AnimatedGlowText text="Pending IPV6..." />}
-                </Text>
-            </div>
+        <div
+            ref={attach_container}
+            className={join_classes("mx-auto w-full max-w-6xl px-4 pb-28 pt-6", className)}
+            hidden={hidden}
+        >
+            <section
+                aria-label="Network status and IP addresses"
+                className="mb-8 rounded-2xl border border-ui-border bg-ui-surface p-4 shadow-sm backdrop-blur-xl"
+            >
+                <div className="flex items-center justify-between gap-3">
+                    <Text as="div" variant="title" weight="semibold" className="text-xl">
+                        Network Status
+                    </Text>
+                    <Clock className="text-2xl" />
+                </div>
+                <div className="my-3 border-t border-ui-border" />
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="min-w-0">
+                        <Text as="div" variant="caption" tone="secondary" className="mb-1">
+                            IPv4 ADDRESS
+                        </Text>
+                        <Text as="div" variant="body" mono className="break-all text-base">
+                            {current_ipv4_address || <AnimatedGlowText text="Pending..." />}
+                        </Text>
+                    </div>
+                    <div className="min-w-0">
+                        <Text as="div" variant="caption" tone="secondary" className="mb-1">
+                            IPv6 ADDRESS
+                        </Text>
+                        <Text as="div" variant="body" mono className="break-all text-base">
+                            {current_ipv6_address || <AnimatedGlowText text="Pending..." />}
+                        </Text>
+                    </div>
+                </div>
+            </section>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 p-4">
-                {ADDRESS_LIST.map((value, index) => {
-                    const url = new URL(value)
-                    const cf_response_object = cf_response_object_record[value]
-                    let ping_state_color = ""
-                    if (cf_response_object?.latency) {
-                        ping_state_color =
-                            cf_response_object.latency <= 200
-                                ? "dark:text-green-300 text-green-500"
-                                : cf_response_object.latency <= 300
-                                  ? "dark:text-yellow-300 text-yellow-500"
-                                  : "dark:text-red-300 text-red-500"
-                    }
-                    return (
-                        <div
-                            key={index}
-                            className="relative flex flex-col justify-center rounded-3xl border border-ui-border bg-ui-surface backdrop-blur-xl p-2 text-foreground shadow-sm select-none"
-                        >
-                            <div className="relative w-full h-full overflow-x-hidden">
-                                <Text as="div" variant="body" align="left" className="px-2">
-                                    {cf_response_object ? (
-                                        <>
-                                            <span>
-                                                {cf_response_object.colo || ""}: {cf_response_object.latency}
-                                            </span>
-                                            <span>ms</span>
-                                        </>
-                                    ) : (
-                                        <Text tone="destructive">Disconnected</Text>
-                                    )}
-                                </Text>
-                                <Text as="div" variant="caption" align="left" className="px-2">
-                                    {url.host.toUpperCase()}
-                                </Text>
-                                <div
-                                    className={`absolute right-2 -top-4 ${ping_state_color} font-bold select-none text-2xl`}
-                                >
-                                    <AnimatedGlowText text="..." />
+            <section aria-label="Network nodes">
+                <div className="mb-3 flex items-center justify-between px-1">
+                    <Text as="div" variant="body" weight="medium">
+                        Network Nodes
+                    </Text>
+                    <Text as="div" variant="caption" tone="secondary" mono>
+                        {Object.values(cf_response_object_record).filter(Boolean).length}/{ADDRESS_LIST.length} online
+                    </Text>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    {ADDRESS_LIST.map((value) => {
+                        const url = new URL(value)
+                        const cf_response_object = cf_response_object_record[value]
+                        const latency = cf_response_object?.latency
+                        const ping_state_color =
+                            latency === undefined
+                                ? "text-ui-label-tertiary"
+                                : latency <= 200
+                                  ? "text-green-500 dark:text-green-300"
+                                  : latency <= 300
+                                    ? "text-yellow-500 dark:text-yellow-300"
+                                    : "text-red-500 dark:text-red-300"
+                        return (
+                            <div
+                                key={value}
+                                className="flex min-h-28 min-w-0 flex-col justify-between rounded-2xl border border-ui-border bg-ui-surface p-3 shadow-sm backdrop-blur-xl"
+                            >
+                                <div className="relative flex min-w-0 items-center justify-between gap-2">
+                                    <Text as="div" variant="caption" tone="secondary" className="truncate">
+                                        {url.host.toUpperCase()}
+                                    </Text>
+                                    <div
+                                        aria-label="Ping indicator"
+                                        className={`shrink-0 font-bold text-2xl leading-none select-none ${ping_state_color}`}
+                                    >
+                                        <AnimatedGlowText text="..." />
+                                    </div>
                                 </div>
+                                {cf_response_object ? (
+                                    <div className="mt-3 flex items-baseline gap-1">
+                                        <Text as="span" variant="title" weight="semibold" mono className="text-2xl">
+                                            {cf_response_object.latency}
+                                        </Text>
+                                        <Text as="span" variant="caption" tone="secondary">
+                                            ms
+                                        </Text>
+                                    </div>
+                                ) : (
+                                    <Text as="div" variant="body" tone="secondary" className="mt-3">
+                                        <AnimatedGlowText text="Connecting..." />
+                                    </Text>
+                                )}
+                                {cf_response_object?.colo && (
+                                    <Text as="div" variant="caption" tone="secondary" className="mt-1">
+                                        {cf_response_object.colo}
+                                    </Text>
+                                )}
                             </div>
-                        </div>
-                    )
-                })}
-            </div>
+                        )
+                    })}
+                </div>
+            </section>
         </div>
     )
 }

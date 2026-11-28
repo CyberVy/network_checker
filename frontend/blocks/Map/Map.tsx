@@ -2,123 +2,117 @@
 
 import { useCallback, useRef } from "react"
 import type { CFResponseObject } from "@core/cf_checker"
-import type { LayerGroup, Map as LeafletMap } from "leaflet"
-import "leaflet/dist/leaflet.css"
+import * as maplibregl from "maplibre-gl"
+import "maplibre-gl/dist/maplibre-gl.css"
+import maplibre_worker_url from "maplibre-gl/dist/maplibre-gl-worker.mjs?url"
 import { get_coords } from "@/core/location"
 import "./Map.css"
+
+maplibregl.setWorkerUrl(maplibre_worker_url)
+
+type MapFeature = {
+    type: "Feature"
+    geometry: { type: "Point"; coordinates: [number, number] }
+    properties: { label: string; is_current_location: boolean }
+}
 
 export type MapProps = {
     className?: string
     cf_response_object_record?: Record<string, CFResponseObject | undefined>
 }
 
-const MAP_LAYERS = {
-    light: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-    dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    stamen: "https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.png", // need auth
-    satellite: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-}
-const INITIAL_CENTER: [number, number] = [30, 120]
+const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty"
+const INITIAL_CENTER: [number, number] = [120, 30]
 const INITIAL_ZOOM = 4
+const SOURCE_ID = "network-locations"
 
 function Map({ className, cf_response_object_record }: MapProps) {
-    const map_instance_ref = useRef<LeafletMap | null>(null)
-    const marker_layer_ref = useRef<LayerGroup | null>(null)
-    const leaflet_ref = useRef<typeof import("leaflet") | null>(null)
+    const map_instance_ref = useRef<maplibregl.Map | null>(null)
     const record_ref = useRef(cf_response_object_record)
+    const current_location_ref = useRef<[number, number] | null>(null)
 
-    const update_markers = useCallback((record?: Record<string, CFResponseObject | undefined>) => {
-        const L = leaflet_ref.current
-        const marker_layer = marker_layer_ref.current
-        if (!L || !marker_layer) return
+    const update_markers = useCallback((map: maplibregl.Map) => {
+        const source = map.getSource(SOURCE_ID) as maplibregl.GeoJSONSource | undefined
+        if (!source) return
 
-        marker_layer.clearLayers()
-        for (const [address, cf_response_object] of Object.entries(record || {})) {
-            if (cf_response_object?.latitude == undefined || cf_response_object.longitude == undefined) continue
-
-            const latitude = cf_response_object.latitude
-            const longitude = cf_response_object.longitude
+        const features: MapFeature[] = []
+        for (const [address, response] of Object.entries(record_ref.current || {})) {
+            if (response?.latitude == null || response.longitude == null) continue
             const url = new URL(address)
-            const label = [url.host.toUpperCase(), cf_response_object.colo ? `(${cf_response_object.colo})` : ""]
-                .filter(Boolean)
-                .join(" ")
-
-            L.circleMarker([latitude, longitude], {
-                radius: 6,
-                weight: 2,
-                color: "#2563eb",
-                fillColor: "#60a5fa",
-                fillOpacity: 0.85
+            features.push({
+                type: "Feature",
+                geometry: { type: "Point", coordinates: [response.longitude, response.latitude] },
+                properties: {
+                    label: [url.host.toUpperCase(), response.colo ? `(${response.colo})` : ""]
+                        .filter(Boolean)
+                        .join(" "),
+                    is_current_location: false
+                }
             })
-                .bindTooltip(label)
-                .addTo(marker_layer)
         }
+        if (current_location_ref.current) {
+            features.push({
+                type: "Feature",
+                geometry: { type: "Point", coordinates: current_location_ref.current },
+                properties: { label: "My Location", is_current_location: true }
+            })
+        }
+        source.setData({ type: "FeatureCollection", features })
     }, [])
 
     const attach_map = useCallback(
         (node: HTMLDivElement | null) => {
             if (!node) return
-
-            let map: LeafletMap | null = null
-            let query: MediaQueryList | null = null
-            let callback: ((event: MediaQueryListEvent) => void) | null = null
-            let is_disposed = false
-
-            import("leaflet").then(async (L) => {
-                if (is_disposed) return
-
-                leaflet_ref.current = L
-                query = window.matchMedia("(prefers-color-scheme: dark)")
-                const is_in_dark = query.matches
-
-                map = L.map(node, { attributionControl: false })
-                map_instance_ref.current = map
-                marker_layer_ref.current = L.layerGroup().addTo(map)
-                map.zoomControl.remove()
-                map.setView(INITIAL_CENTER, INITIAL_ZOOM)
-
-                let layer = L.tileLayer(is_in_dark ? MAP_LAYERS["dark"] : MAP_LAYERS["light"])
-                layer.addTo(map)
-
-                callback = (event: MediaQueryListEvent) => {
-                    if (!map) return
-                    if (event.matches) {
-                        layer.remove()
-                        layer = L.tileLayer(MAP_LAYERS["dark"])
-                        layer.addTo(map)
-                    } else {
-                        layer.remove()
-                        layer = L.tileLayer(MAP_LAYERS["light"])
-                        layer.addTo(map)
-                    }
-                }
-                query.addEventListener("change", callback)
-
-                update_markers(record_ref.current)
-
-                const [latitude, longitude] = await get_coords()
-                if (is_disposed || !map) return
-
-                const marker = L.circleMarker([latitude, longitude], {
-                    radius: 6,
-                    weight: 2,
-                    color: "#330033",
-                    fillColor: "#aaaaaa",
-                    fillOpacity: 0.85
-                })
-                marker.bindTooltip("My Location").addTo(map)
-                map.setView([latitude, longitude], 10)
+            const map = new maplibregl.Map({
+                container: node,
+                style: MAP_STYLE,
+                center: INITIAL_CENTER,
+                zoom: INITIAL_ZOOM,
+                attributionControl: false
             })
-
-            return () => {
-                is_disposed = true
-                if (query && callback) {
-                    query.removeEventListener("change", callback)
+            map_instance_ref.current = map
+            map.on("style.load", () => {
+                map.addSource(SOURCE_ID, { type: "geojson", data: { type: "FeatureCollection", features: [] } })
+                map.addLayer({
+                    id: "network-location-circles",
+                    type: "circle",
+                    source: SOURCE_ID,
+                    paint: {
+                        "circle-radius": 6,
+                        "circle-color": ["case", ["get", "is_current_location"], "#aaaaaa", "#60a5fa"],
+                        "circle-stroke-width": 2,
+                        "circle-stroke-color": ["case", ["get", "is_current_location"], "#333333", "#2563eb"]
+                    }
+                })
+                map.addLayer({
+                    id: "network-location-labels",
+                    type: "symbol",
+                    source: SOURCE_ID,
+                    layout: {
+                        "text-field": ["get", "label"],
+                        "text-font": ["Noto Sans Regular"],
+                        "text-size": 11,
+                        "text-offset": [0, 1.4],
+                        "text-anchor": "top"
+                    },
+                    paint: { "text-color": "#333333", "text-halo-color": "#ffffff", "text-halo-width": 1.5 }
+                })
+                update_markers(map)
+            })
+            map.on("load", async () => {
+                try {
+                    const [latitude, longitude] = await get_coords()
+                    if (map_instance_ref.current !== map) return
+                    current_location_ref.current = [longitude, latitude]
+                    update_markers(map)
+                    map.flyTo({ center: [longitude, latitude], zoom: 10 })
+                } catch {
+                    // Location permission may be denied; the map remains usable.
                 }
-                map?.remove()
-                map_instance_ref.current = null
-                marker_layer_ref.current = null
-                leaflet_ref.current = null
+            })
+            return () => {
+                map.remove()
+                if (map_instance_ref.current === map) map_instance_ref.current = null
             }
         },
         [update_markers]
@@ -128,13 +122,14 @@ function Map({ className, cf_response_object_record }: MapProps) {
         (el: HTMLSpanElement | null) => {
             if (!el) return
             record_ref.current = cf_response_object_record
-            update_markers(cf_response_object_record)
+            const map = map_instance_ref.current
+            if (map?.isStyleLoaded()) update_markers(map)
         },
         [cf_response_object_record, update_markers]
     )
 
     return (
-        <div className={`select-none ${className}`} ref={attach_map}>
+        <div className={`select-none ${className || ""}`} ref={attach_map}>
             <span ref={attach_marker_tracker} style={{ display: "none" }} />
         </div>
     )

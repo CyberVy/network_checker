@@ -1,9 +1,9 @@
-.leaflet-container {
+.maplibregl-map {
     background-color: #f0f0f0;
 }
 
 @media (prefers-color-scheme: dark) {
-    .leaflet-container {
-        background-color: #1a1a1a !important;
+    .maplibregl-map .maplibregl-canvas {
+        filter: invert(0.88) hue-rotate(180deg) brightness(0.85) saturate(0.8);
     }
 }
